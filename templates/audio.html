@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Steganography</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card" style="max-width: 800px;">
+        <h1>Audio Steganography</h1>
+        <p class="subtitle">Hide secrets in .WAV audio files.</p>
+
+        <div style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap;">
+            <!-- Encode Section -->
+            <div style="flex: 1; min-width: 300px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                <h3>🎵 Hide Message</h3>
+                <form action="/encode_audio" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="file-upload-label">
+                            <span>Upload .WAV File</span>
+                            <input type="file" name="audio" accept=".wav" required>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="message" placeholder="Secret message..." style="min-height: 80px;"
+                            required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-full">🔒 Encrypt Audio</button>
+                </form>
+            </div>
+
+            <!-- Decode Section -->
+            <div style="flex: 1; min-width: 300px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                <h3>🔓 Reveal Message</h3>
+                <form action="/decode_audio" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="file-upload-label">
+                            <span>Upload .WAV File</span>
+                            <input type="file" name="audio" accept=".wav" required>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-secondary w-full">🔍 Decrypt Audio</button>
+                </form>
+
+                {% if decoded_message %}
+                <div class="result-box" style="margin-top: 20px;">
+                    <strong>Hidden Message:</strong><br>
+                    {{ decoded_message }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="/" class="btn btn-secondary w-full mt-4">← Back to Home</a>
+    </div>
+</body>
+
+</html>

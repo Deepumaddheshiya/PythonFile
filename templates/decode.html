@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decode Message</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card">
+        <h1>Decode Message</h1>
+        <p class="subtitle">Extract a hidden secret from an encoded image.</p>
+
+        <form action="/decode_message" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="file-upload-label">
+                    <span>📁 Upload Encoded Image</span>
+                    <input type="file" name="image" accept="image/*" required onchange="previewImage(event)">
+                </label>
+                <img id="preview" src="#" alt="Preview" class="hidden">
+            </div>
+
+            <div class="form-group">
+                <input type="password" name="password" placeholder="🔑 Password (if message is encrypted)"
+                    style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); color: white; padding: 1rem; width: 100%; border-radius: 8px;">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">🔓 Reveal Message</button>
+        </form>
+
+        <a href="/" class="btn btn-secondary w-full mt-4">← Back to Home</a>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+            if (file) {
+                preview.classList.remove('hidden');
+                preview.style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+
+</html>

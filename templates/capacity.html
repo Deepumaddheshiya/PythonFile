@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Capacity</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card">
+        <h1>Check Capacity</h1>
+        <p class="subtitle">Analyze how much hidden data an image can hold.</p>
+
+        <form action="/calculate_capacity" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="file-upload-label">
+                    <span>📁 Upload Image to Analyze</span>
+                    <input type="file" name="image" accept="image/*" required onchange="previewImage(event)">
+                </label>
+                <img id="preview" src="#" alt="Preview" class="hidden">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">📊 Calculate</button>
+        </form>
+
+        <a href="/" class="btn btn-secondary w-full mt-4">← Back to Home</a>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+            if (file) {
+                preview.classList.remove('hidden');
+                preview.style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+
+</html>

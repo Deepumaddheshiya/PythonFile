@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacity Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card">
+        <h1>Capacity Results</h1>
+        <p class="subtitle">Analysis of hidden data potential.</p>
+
+        <div style="text-align: left; margin-bottom: 2rem;">
+            <h3 style="color: var(--accent-primary); margin-bottom: 0.5rem;">Image Information</h3>
+            <p><strong>Dimensions:</strong> {{ capacity.width }} × {{ capacity.height }} px</p>
+            <p><strong>Total Pixels:</strong> {{ "{:,}".format(capacity.pixels) }}</p>
+
+            <h3 style="color: var(--accent-primary); margin-top: 1.5rem; margin-bottom: 0.5rem;">Maximum Capacity</h3>
+            <div class="result-box" style="margin-top: 0.5rem;">
+                <p><strong>Bytes:</strong> {{ "{:,}".format(capacity.max_bytes) }}</p>
+                <p><strong>Characters:</strong> {{ "{:,}".format(capacity.max_chars) }}</p>
+            </div>
+
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 1rem; font-style: italic;">
+                Note: This is the theoretical maximum (1 bit per channel).
+            </p>
+        </div>
+
+        <div class="btn-group">
+            <a href="/capacity" class="btn btn-primary w-full">📊 Check Another</a>
+            <a href="/" class="btn btn-secondary w-full">← Back to Home</a>
+        </div>
+    </div>
+</body>
+
+</html>

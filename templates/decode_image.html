@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieve Hidden Image</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card">
+        <h1>Retrieve Image</h1>
+        <p class="subtitle">Extract a hidden image from a cover file.</p>
+
+        <form action="/decode_image_action" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="file-upload-label">
+                    <span>📁 Upload Encoded Image</span>
+                    <input type="file" name="image" accept="image/*" required>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">🖼️ Extract Image</button>
+        </form>
+
+        <a href="/" class="btn btn-secondary w-full mt-4">← Back to Home</a>
+    </div>
+</body>
+
+</html>

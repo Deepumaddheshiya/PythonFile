@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card" style="max-width: 800px;">
+        <h1>Analysis Complete</h1>
+        <p class="subtitle">LSB Enhanced View (Noise Visualization)</p>
+
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="color: var(--text-secondary);">Original Image</h3>
+                <img src="{{ original_image }}" alt="Original"
+                    style="width: 100%; border-radius: 8px; border: 1px solid var(--glass-border);">
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <h3 style="color: var(--accent-primary);">LSB Noise Map</h3>
+                <img src="{{ analysis_image }}" alt="Analysis"
+                    style="width: 100%; border-radius: 8px; border: 1px solid var(--glass-border);">
+            </div>
+        </div>
+
+        <div class="result-box">
+            <p><strong>How to interpret:</strong></p>
+            <p>If you see static/random noise, it's normal.</p>
+            <p>If you see <strong>patterns, shapes, or text</strong> in the Noise Map, there is likely hidden data!</p>
+        </div>
+
+        <div class="btn-group">
+            <a href="/analyze" class="btn btn-primary w-full">🕵️ Analyze Another</a>
+            <a href="/" class="btn btn-secondary w-full">← Back to Home</a>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steganography Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Add Futura Font -->
+    <link href="https://fonts.cdnfonts.com/css/futura" rel="stylesheet">
+    <!-- Add Pacifico Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Background -->
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+
+    <div class="glass-card">
+        <h1>Steganography Tool</h1>
+        <p class="subtitle">Securely hide secrets within images using advanced steganography.</p>
+
+        <div class="btn-group">
+            <a href="/encode" class="btn btn-primary">
+                <span>🔒</span> Encode Message
+            </a>
+            <a href="/decode" class="btn btn-secondary">
+                <span>🔓</span> Decode Message
+            </a>
+            <a href="/capacity" class="btn btn-secondary">
+                <span>📊</span> Check Capacity
+            </a>
+            <a href="/analyze" class="btn btn-secondary" style="border-color: var(--accent-primary);">
+                <span>🕵️</span> Scan Image
+            </a>
+
+            <h3 style="margin: 10px 0; color: var(--text-secondary); font-size: 0.9em;">--- Advanced ---</h3>
+
+            <a href="/encode_image" class="btn btn-secondary">
+                <span>🖼️</span> Hide Image in Image
+            </a>
+            <a href="/decode_image" class="btn btn-secondary">
+                <span>🖼️</span> Extract Image
+            </a>
+
+            <a href="/audio" class="btn btn-secondary" style="border-color: #22c55e;">
+                <span>🎵</span> Audio Stego
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hide Image in Image</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- Background Animation -->
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="Background Animation" class="background-gif">
+
+    <div class="glass-card">
+
+        <h1>Hide Image</h1>
+        <p class="subtitle">Embed a secret image inside a cover image.</p>
+
+        <!-- FORM START -->
+        <form action="{{ url_for('encode_image_action') }}" method="POST" enctype="multipart/form-data">
+
+            <!-- Cover Image -->
+            <div class="form-group">
+                <label>1. Select Cover Image (Large)</label>
+
+                <!-- ✅ BOX -->
+                <label class="file-upload-label">
+                    📁 Click to upload cover image
+                    <input type="file" name="cover_image" accept="image/*" required>
+                </label>
+            </div>
+
+            <!-- Secret Image -->
+            <div class="form-group">
+                <label>2. Select Secret Image (Small)</label>
+
+                <!-- ✅ BOX -->
+                <label class="file-upload-label">
+                    📁 Click to upload secret image
+                    <input type="file" name="secret_image" accept="image/*" required>
+                </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-full">
+                🖼️ Hide Image
+            </button>
+
+        </form>
+        <!-- FORM END -->
+
+        <a href="{{ url_for('index') }}" class="btn btn-secondary w-full mt-4">
+            ← Back to Home
+        </a>
+
+    </div>
+
+</body>
+
+</html>

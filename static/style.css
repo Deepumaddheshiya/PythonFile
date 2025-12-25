@@ -1,0 +1,262 @@
+/* =========================
+   Modern Dark Glassmorphism
+   ========================= */
+
+:root {
+    --bg-dark: #0f172a;
+    --glass-bg: rgba(17, 25, 40, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.125);
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-primary: #3b82f6;
+    --accent-secondary: #8b5cf6;
+    --accent-glow: rgba(59, 130, 246, 0.5);
+}
+
+/* Global Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap');
+
+body {
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+    overflow-x: hidden;
+}
+
+/* Animated Background Glow */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.6;
+    z-index: -1;
+    animation: float 20s infinite alternate ease-in-out;
+}
+
+body::before {
+    background: var(--accent-glow);
+    top: -100px;
+    left: -100px;
+}
+
+body::after {
+    background: rgba(139, 92, 246, 0.4);
+    bottom: -100px;
+    right: -100px;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes float {
+    from {
+        transform: translate(0, 0) scale(1);
+    }
+
+    to {
+        transform: translate(300px, 300px) scale(1.2);
+    }
+}
+
+/* Background GIF */
+.background-gif {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    filter: blur(8px) brightness(0.4);
+}
+
+/* Glass Card */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 3rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Typography */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+/* =========================
+   BUTTONS + SPACING
+   ========================= */
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 1.5rem;
+}
+
+.btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: #fff;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid var(--glass-border);
+}
+
+/* =========================
+   FORM & INPUTS
+   ========================= */
+
+.form-group {
+    margin-bottom: 2rem;
+    /* 👈 thoda gap */
+    text-align: left;
+}
+
+label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: .5rem;
+    display: block;
+}
+
+/* Dark input / textarea */
+input[type="text"],
+input[type="password"],
+textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1rem;
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: 'Outfit', sans-serif;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-secondary);
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* =========================
+   FILE UPLOAD BOX (FINAL)
+   ========================= */
+
+input[type="file"] {
+    display: none;
+}
+
+/* BOX under 1 & 2 */
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 0.8rem;
+    /* label ke niche */
+    min-height: 90px;
+    /* box height */
+
+    padding: 1.8rem;
+    border: 2px dashed var(--glass-border);
+    border-radius: 12px;
+
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.28);
+    color: var(--text-secondary);
+    transition: 0.3s;
+    text-align: center;
+}
+
+.file-upload-label:hover {
+    border-color: var(--accent-primary);
+    background: rgba(59, 130, 246, 0.15);
+    color: #fff;
+}
+
+/* Utilities */
+.mt-4 {
+    margin-top: 1rem;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
