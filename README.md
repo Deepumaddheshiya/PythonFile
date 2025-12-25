@@ -46,7 +46,7 @@ Built with **Python**, **Flask**, and **Modern Glassmorphism UI**.
 
 1.  **Clone the Repository**
     ```bash
-    git clone https://github.com/yourusername/steganography-tool.git
+    git clone https://github.com/Deepumaddheshiya/PythonFile.git
     cd steganography-tool
     ```
 
