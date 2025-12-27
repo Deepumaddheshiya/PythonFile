@@ -72,66 +72,8 @@ This improves usability and makes hidden data statistically harder to detect.
 ---
 
 ## 📁 Project Structure
-Steganography_AI_Tool/
-│
-├── app.py                     # Main Flask application entry point
-├── config.py                  # App configuration & environment handling
-├── requirements.txt           # Python dependencies
-├── README.md                  # Project documentation
-├── .env                       # Environment variables (API keys, secrets)
-│
-├── utils/                     # Core business logic
-│   ├── __init__.py
-│   ├── encryption.py          # AES-256 encryption / decryption logic
-│   ├── text_stego.py          # Text-in-image steganography
-│   ├── image_stego.py         # Image-in-image hiding logic
-│   ├── audio_stego.py         # Audio (.wav) LSB steganography
-│   ├── steganalysis.py        # LSB noise detection & analysis
-│   └── ai_generator.py        # Google Gemini AI integration
-│
-├── templates/                 # HTML templates (Flask Jinja2)
-│   ├── base.html              # Common layout (navbar, footer)
-│   ├── index.html             # Home dashboard
-│   ├── encode_text.html       # Text steganography UI
-│   ├── encode_image.html      # Image-in-image UI
-│   ├── encode_audio.html      # Audio steganography UI
-│   ├── decode.html            # Decode / extract UI
-│   ├── scan.html              # Steganalysis UI
-│   └── error.html             # Error handling pages
-│
-├── static/                    # Frontend assets
-│   ├── css/
-│   │   ├── main.css           # Global styles
-│   │   ├── glassmorphism.css  # UI effects
-│   │   └── animations.css     # Background animations
-│   │
-│   ├── js/
-│   │   ├── main.js            # Client-side logic
-│   │   ├── validation.js      # Form validations
-│   │   └── preview.js         # File preview logic
-│   │
-│   ├── images/                # UI images & icons
-│   └── animation.gif.gif      # Background animation
-│
-├── uploads/                   # User uploaded files (runtime)
-│   ├── input/                 # Original cover files
-│   ├── output/                # Generated stego files
-│   └── temp/                  # Temporary processing files
-│
-├── logs/                      # Application logs
-│   └── app.log
-│
-├── tests/                     # Testing (optional but pro-level)
-│   ├── test_encryption.py
-│   ├── test_steganography.py
-│   └── test_ai_generator.py
-│
-├── docs/                      # Documentation assets
-│   ├── architecture.png       # System architecture diagram
-│   ├── flowchart.png          # Encoding/decoding flow
-│   └── screenshots/           # UI screenshots for README
-│
-└── .gitignore                 # Git ignore rules
+<img width="763" height="658" alt="image" src="https://github.com/user-attachments/assets/e17d4318-a37f-4584-a88a-5fe088f52d65" />
+<img width="685" height="817" alt="image" src="https://github.com/user-attachments/assets/fdd170a7-311d-4451-8c01-112976dad545" />
 
 
 ## 📦 Installation & Setup
