@@ -2,3 +2,4 @@ flask
 pillow
 google-generativeai
 python-dotenv
+cryptography
