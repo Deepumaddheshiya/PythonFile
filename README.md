@@ -349,7 +349,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Deepu Maddheshiya**
 - GitHub: [@Deepumaddheshiya](https://github.com/Deepumaddheshiya)
-
+- Github: [@adarshhh25](https://github.com/adarshhh25)
 ---
 
 ## 🙏 Acknowledgments
