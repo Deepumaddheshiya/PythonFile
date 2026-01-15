@@ -57,7 +57,8 @@ Steganography Engine (LSB)
 - Optional password protection with AES-256 encryption
 - Visual capacity calculator to check how much data can be hidden
 
-![Uploading image.png…]()
+<img width="425" height="903" alt="image" src="https://github.com/user-attachments/assets/c610cbe5-c573-4318-a2ab-5c018ae80b13" />
+
 
 ### 2. 🔐 Military-Grade Encryption
 - AES-256 encryption with password-based key derivation (PBKDF2)
