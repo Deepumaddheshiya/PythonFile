@@ -4,59 +4,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Steganography</title>
+    <title>Audio Steganography - Steganography Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .audio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+        .audio-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .panel-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            font-size: 1.125rem;
+        }
+        .panel-encode .panel-icon {
+            background: rgba(99, 102, 241, 0.15);
+        }
+        .panel-decode .panel-icon {
+            background: rgba(16, 185, 129, 0.15);
+        }
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        @media (max-width: 768px) {
+            .audio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+    <div class="background-overlay"></div>
+    <div class="grid-pattern"></div>
 
-    <div class="glass-card" style="max-width: 800px;">
-        <h1>Audio Steganography</h1>
-        <p class="subtitle">Hide secrets in .WAV audio files.</p>
+    <div class="main-container">
+        <div class="glass-card" style="max-width: 800px;">
+            <!-- Back Link -->
+            <a href="/" class="back-link">
+                <span>←</span> Back to Home
+            </a>
 
-        <div style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap;">
-            <!-- Encode Section -->
-            <div style="flex: 1; min-width: 300px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px;">
-                <h3>🎵 Hide Message</h3>
-                <form action="/encode_audio" method="post" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label class="file-upload-label">
-                            <span>Upload .WAV File</span>
-                            <input type="file" name="audio" accept=".wav" required>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <textarea name="message" placeholder="Secret message..." style="min-height: 80px;"
-                            required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-full">🔒 Encrypt Audio</button>
-                </form>
+            <!-- Header -->
+            <div class="page-header">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='music.jpg') }}" alt="Audio">
+                </div>
+                <h1 class="page-title">Audio Steganography</h1>
+                <p class="page-subtitle">Hide and extract secret messages in WAV audio files</p>
             </div>
 
-            <!-- Decode Section -->
-            <div style="flex: 1; min-width: 300px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px;">
-                <h3>🔓 Reveal Message</h3>
-                <form action="/decode_audio" method="post" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label class="file-upload-label">
-                            <span>Upload .WAV File</span>
-                            <input type="file" name="audio" accept=".wav" required>
-                        </label>
+            <!-- Audio Panels Grid -->
+            <div class="audio-grid">
+                <!-- Encode Panel -->
+                <div class="audio-panel panel-encode">
+                    <div class="panel-header">
+                        <!-- <div class="panel-icon">🔒</div> -->
+                        <span class="panel-title">Hide Message</span>
                     </div>
-                    <button type="submit" class="btn btn-secondary w-full">🔍 Decrypt Audio</button>
-                </form>
+                    
+                    <form action="/encode_audio" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="form-label">Select WAV File</label>
+                            <div class="file-upload" style="padding: var(--spacing-md);">
+                                <!-- <span class="file-upload-icon">🎵</span> -->
+                                <span class="file-upload-text">Upload .WAV file</span>
+                                <input type="file" name="audio" accept=".wav" required>
+                            </div>
+                        </div>
 
-                {% if decoded_message %}
-                <div class="result-box" style="margin-top: 20px;">
-                    <strong>Hidden Message:</strong><br>
-                    {{ decoded_message }}
+                        <div class="form-group">
+                            <label class="form-label">Secret Message</label>
+                            <textarea 
+                                class="form-textarea" 
+                                name="message" 
+                                placeholder="Enter your secret message..."
+                                style="min-height: 80px;"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                            Encode Audio
+                        </button>
+                    </form>
                 </div>
-                {% endif %}
+
+                <!-- Decode Panel -->
+                <div class="audio-panel panel-decode">
+                    <div class="panel-header">
+                        <!-- <div class="panel-icon">🔓</div> -->
+                        <span class="panel-title">Extract Message</span>
+                    </div>
+                    
+                    <form action="/decode_audio" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label class="form-label">Select Encoded WAV File</label>
+                            <div class="file-upload" style="padding: var(--spacing-md);">
+                                <!-- <span class="file-upload-icon">🔍</span> -->
+                                <span class="file-upload-text">Upload encoded .WAV file</span>
+                                <input type="file" name="audio" accept=".wav" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-secondary" style="width: 100%; justify-content: center; margin-top: var(--spacing-md);">
+                            Decode Audio
+                        </button>
+                    </form>
+
+                    {% if decoded_message %}
+                    <div class="result-card" style="margin-top: var(--spacing-md);">
+                        <div class="result-header">
+                            <div class="result-icon">✓</div>
+                            <span class="result-title">Hidden Message Found</span>
+                        </div>
+                        <div class="result-content">{{ decoded_message }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="alert alert-info" style="margin-top: var(--spacing-md);">
+                <span>Audio steganography uses LSB (Least Significant Bit) modification for undetectable data hiding.</span>
             </div>
         </div>
-
-        <a href="/" class="btn btn-secondary w-full mt-4">← Back to Home</a>
     </div>
 </body>
 

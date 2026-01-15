@@ -43,76 +43,83 @@ if GEMINI_AVAILABLE:
 def index():
     return render_template('index.html')
 
-@app.route('/encode')
-def encode_page():
-    return render_template('encode.html')
-
-@app.route('/decode')
-def decode_page():
-    return render_template('decode.html')
-
-@app.route('/capacity')
-def capacity_page():
-    return render_template('capacity.html')
-
 # ========== TEXT STEGANOGRAPHY ==========
 
-@app.route('/encode_message', methods=['POST'])
+@app.route('/encode', methods=['GET', 'POST'])
 def encode():
-    if 'image' not in request.files or 'message' not in request.form:
-        return "Invalid request", 400
+    if request.method == 'POST':
+        try:
+            if 'image' not in request.files or 'message' not in request.form:
+                return render_template('encode.html', error="Invalid request")
 
-    image = request.files['image']
-    if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
-        return "Invalid file type", 400
+            image = request.files['image']
+            if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
+                return render_template('encode.html', error="Invalid file type")
 
-    message = request.form['message']
-    password = request.form.get('password')
+            message = request.form['message']
+            encrypt = request.form.get('encrypt') == 'on'
+            password = request.form.get('password', '')
 
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-    input_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-    output_name = f"encoded_{os.path.splitext(image.filename)[0]}.png"
-    output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_name)
+            input_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            output_name = f"encoded_{os.path.splitext(image.filename)[0]}.png"
+            output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_name)
 
-    image.save(input_path)
-    encode_message(input_path, message, output_path, password)
+            image.save(input_path)
+            encode_message(input_path, message, output_path, password if encrypt else None)
 
-    return send_file(output_path, as_attachment=True, download_name=output_name)
+            return send_file(output_path, as_attachment=True, download_name=output_name)
+        except Exception as e:
+            return render_template('encode.html', error=str(e))
+    
+    return render_template('encode.html')
 
-@app.route('/decode_message', methods=['POST'])
-def decode():
-    if 'image' not in request.files:
-        return "Invalid request", 400
+@app.route('/decode', methods=['GET', 'POST'])
+def decode_page():
+    if request.method == 'POST':
+        try:
+            if 'image' not in request.files:
+                return render_template('decode.html', error="Invalid request")
 
-    image = request.files['image']
-    password = request.form.get('password')
+            image = request.files['image']
+            password = request.form.get('password')
 
-    if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
-        return "Invalid file type", 400
+            if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
+                return render_template('decode.html', error="Invalid file type")
 
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-    image.save(image_path)
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            image.save(image_path)
 
-    message = decode_message(image_path, password)
-    return render_template('decode_result.html', message=message)
+            message = decode_message(image_path, password)
+            return render_template('decode.html', message=message)
+        except Exception as e:
+            return render_template('decode.html', error=str(e))
+    
+    return render_template('decode.html')
 
-@app.route('/calculate_capacity', methods=['POST'])
-def calculate():
-    if 'image' not in request.files:
-        return "Invalid request", 400
+@app.route('/capacity', methods=['GET', 'POST'])
+def capacity_page():
+    if request.method == 'POST':
+        try:
+            if 'image' not in request.files:
+                return render_template('capacity.html', error="Invalid request")
 
-    image = request.files['image']
-    if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
-        return "Invalid file type", 400
+            image = request.files['image']
+            if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
+                return render_template('capacity.html', error="Invalid file type")
 
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-    image.save(path)
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            image.save(path)
 
-    capacity = calculate_capacity(path)
-    return render_template('capacity_result.html', capacity=capacity)
+            capacity = calculate_capacity(path)
+            return render_template('capacity.html', capacity=capacity)
+        except Exception as e:
+            return render_template('capacity.html', error=str(e))
+    
+    return render_template('capacity.html')
 
 # ========== AI MESSAGE (OPTIONAL) ==========
 
@@ -149,123 +156,130 @@ def generate_ai_message():
 
 # ========== IMAGE ANALYSIS ==========
 
-@app.route('/analyze')
+@app.route('/analyze', methods=['GET', 'POST'])
 def analyze_page():
+    if request.method == 'POST':
+        try:
+            if 'image' not in request.files:
+                return render_template('analyze.html', error="Invalid request")
+
+            image = request.files['image']
+            if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
+                return render_template('analyze.html', error="Invalid file type")
+
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+            img_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'analysis_' + image.filename)
+
+            image.save(img_path)
+            analyze_image(img_path, output_path)
+
+            return render_template(
+                'analyze.html',
+                original_image=f'uploads/{image.filename}',
+                analysis_image=f'uploads/analysis_{image.filename}'
+            )
+        except Exception as e:
+            return render_template('analyze.html', error=str(e))
+    
     return render_template('analyze.html')
-
-@app.route('/analyze_image', methods=['POST'])
-def analyze():
-    if 'image' not in request.files:
-        return "Invalid request", 400
-
-    image = request.files['image']
-    if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
-        return "Invalid file type", 400
-
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    img_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-    output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'analysis_' + image.filename)
-
-    image.save(img_path)
-    analyze_image(img_path, output_path)
-
-    return render_template(
-        'analyze_result.html',
-        original_image=f'uploads/{image.filename}',
-        analysis_image=f'uploads/analysis_{image.filename}'
-    )
 
 # ========== IMAGE IN IMAGE ==========
 
-@app.route('/encode_image')
+@app.route('/encode_image', methods=['GET', 'POST'])
 def encode_image_page():
+    if request.method == 'POST':
+        try:
+            if 'cover_image' not in request.files or 'secret_image' not in request.files:
+                return render_template('encode_image.html', error="Invalid request")
+
+            cover = request.files['cover_image']
+            secret = request.files['secret_image']
+
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+            cover_path = os.path.join(app.config['UPLOAD_FOLDER'], cover.filename)
+            secret_path = os.path.join(app.config['UPLOAD_FOLDER'], secret.filename)
+            output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'img_hidden.png')
+
+            cover.save(cover_path)
+            secret.save(secret_path)
+
+            encode_image_in_image(cover_path, secret_path, output_path)
+            return send_file(output_path, as_attachment=True, download_name='img_hidden.png')
+        except Exception as e:
+            return render_template('encode_image.html', error=str(e))
+    
     return render_template('encode_image.html')
 
-@app.route('/decode_image')
+@app.route('/decode_image', methods=['GET', 'POST'])
 def decode_image_page():
+    if request.method == 'POST':
+        try:
+            if 'image' not in request.files:
+                return render_template('decode_image.html', error="Invalid request")
+
+            image = request.files['image']
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+            output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'recovered_secret.png')
+
+            image.save(image_path)
+            decode_image_from_image(image_path, output_path)
+            
+            return send_file(output_path, as_attachment=True, download_name='recovered_secret.png')
+        except Exception as e:
+            return render_template('decode_image.html', error=str(e))
+    
     return render_template('decode_image.html')
-
-@app.route('/encode_image_action', methods=['POST'])
-def encode_image_action():
-    if 'cover_image' not in request.files or 'secret_image' not in request.files:
-        return "Invalid request", 400
-
-    cover = request.files['cover_image']
-    secret = request.files['secret_image']
-
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-    cover_path = os.path.join(app.config['UPLOAD_FOLDER'], cover.filename)
-    secret_path = os.path.join(app.config['UPLOAD_FOLDER'], secret.filename)
-    output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'img_hidden.png')
-
-    cover.save(cover_path)
-    secret.save(secret_path)
-
-    encode_image_in_image(cover_path, secret_path, output_path)
-    return send_file(output_path, as_attachment=True)
-
-@app.route('/decode_image_action', methods=['POST'])
-def decode_image_action():
-    if 'image' not in request.files:
-        return "Invalid request", 400
-
-    image = request.files['image']
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
-    output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'recovered_secret.png')
-
-    image.save(image_path)
-
-    try:
-        decode_image_from_image(image_path, output_path)
-        return send_file(output_path, as_attachment=True)
-    except Exception as e:
-        return f"Error: {str(e)}", 500
 
 # ========== AUDIO STEGANOGRAPHY ==========
 
-@app.route('/audio')
+@app.route('/audio', methods=['GET', 'POST'])
 def audio_page():
+    if request.method == 'POST':
+        action = request.form.get('action')
+
+        try:
+            if action == 'encode':
+                if 'audio' not in request.files or 'message' not in request.form:
+                    return render_template('audio.html', error="Invalid request")
+
+                audio = request.files['audio']
+                message = request.form['message']
+
+                if not audio.filename.lower().endswith('.wav'):
+                    return render_template('audio.html', error="Only WAV files supported")
+
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+                audio_path = os.path.join(app.config['UPLOAD_FOLDER'], audio.filename)
+                output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'audio_encoded.wav')
+
+                audio.save(audio_path)
+                encode_audio(audio_path, message, output_path)
+
+                return send_file(output_path, as_attachment=True, download_name='audio_encoded.wav')
+
+            elif action == 'decode':
+                if 'audio' not in request.files:
+                    return render_template('audio.html', error="Invalid request")
+
+                audio = request.files['audio']
+                if not audio.filename.lower().endswith('.wav'):
+                    return render_template('audio.html', error="Only WAV files supported")
+
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                audio_path = os.path.join(app.config['UPLOAD_FOLDER'], audio.filename)
+                audio.save(audio_path)
+
+                message = decode_audio(audio_path)
+                return render_template('audio.html', decoded_message=message)
+        except Exception as e:
+            return render_template('audio.html', error=str(e))
+    
     return render_template('audio.html')
-
-@app.route('/encode_audio', methods=['POST'])
-def encode_audio_action():
-    if 'audio' not in request.files or 'message' not in request.form:
-        return "Invalid request", 400
-
-    audio = request.files['audio']
-    message = request.form['message']
-
-    if not audio.filename.lower().endswith('.wav'):
-        return "Only WAV files supported", 400
-
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-    audio_path = os.path.join(app.config['UPLOAD_FOLDER'], audio.filename)
-    output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'audio_encoded.wav')
-
-    audio.save(audio_path)
-    encode_audio(audio_path, message, output_path)
-
-    return send_file(output_path, as_attachment=True)
-
-@app.route('/decode_audio', methods=['POST'])
-def decode_audio_action():
-    if 'audio' not in request.files:
-        return "Invalid request", 400
-
-    audio = request.files['audio']
-    if not audio.filename.lower().endswith('.wav'):
-        return "Only WAV files supported", 400
-
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    audio_path = os.path.join(app.config['UPLOAD_FOLDER'], audio.filename)
-    audio.save(audio_path)
-
-    message = decode_audio(audio_path)
-    return render_template('audio.html', decoded_message=message)
 
 # ================= MAIN =================
 

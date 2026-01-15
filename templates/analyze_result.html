@@ -4,39 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis Result</title>
+    <title>Analysis Result - Steganography Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-md);
+            margin: var(--spacing-md) 0;
+        }
+        .comparison-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .comparison-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .comparison-label {
+            padding: var(--spacing-sm);
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+        .comparison-label.highlight {
+            color: var(--accent-primary);
+        }
+        @media (max-width: 640px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+    <div class="background-overlay"></div>
+    <div class="grid-pattern"></div>
 
-    <div class="glass-card" style="max-width: 800px;">
-        <h1>Analysis Complete</h1>
-        <p class="subtitle">LSB Enhanced View (Noise Visualization)</p>
+    <div class="main-container">
+        <div class="glass-card" style="max-width: 720px;">
+            <!-- Back Link -->
+            <a href="/analyze" class="back-link">
+                <span>←</span> Back to Analyze
+            </a>
 
-        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
-            <div style="flex: 1; min-width: 300px;">
-                <h3 style="color: var(--text-secondary);">Original Image</h3>
-                <img src="{{ original_image }}" alt="Original"
-                    style="width: 100%; border-radius: 8px; border: 1px solid var(--glass-border);">
+            <!-- Header -->
+            <div class="page-header">
+                <div class="logo">✅</div>
+                <h1 class="page-title">Analysis Complete</h1>
+                <p class="page-subtitle">LSB enhanced view for noise visualization</p>
             </div>
-            <div style="flex: 1; min-width: 300px;">
-                <h3 style="color: var(--accent-primary);">LSB Noise Map</h3>
-                <img src="{{ analysis_image }}" alt="Analysis"
-                    style="width: 100%; border-radius: 8px; border: 1px solid var(--glass-border);">
+
+            <!-- Comparison Images -->
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <img src="{{ original_image }}" alt="Original Image">
+                    <div class="comparison-label">Original Image</div>
+                </div>
+                <div class="comparison-item">
+                    <img src="{{ analysis_image }}" alt="LSB Noise Map">
+                    <div class="comparison-label highlight">LSB Noise Map</div>
+                </div>
             </div>
-        </div>
 
-        <div class="result-box">
-            <p><strong>How to interpret:</strong></p>
-            <p>If you see static/random noise, it's normal.</p>
-            <p>If you see <strong>patterns, shapes, or text</strong> in the Noise Map, there is likely hidden data!</p>
-        </div>
+            <!-- Interpretation Guide -->
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-icon">💡</div>
+                    <span class="result-title">How to Interpret</span>
+                </div>
+                <div class="result-content" style="font-family: var(--font-primary);">
+                    <p style="margin-bottom: 0.5rem;"><strong>Normal:</strong> Random static noise throughout the image</p>
+                    <p><strong>Suspicious:</strong> Visible patterns, shapes, or text in the noise map may indicate hidden data</p>
+                </div>
+            </div>
 
-        <div class="btn-group">
-            <a href="/analyze" class="btn btn-primary w-full">🕵️ Analyze Another</a>
-            <a href="/" class="btn btn-secondary w-full">← Back to Home</a>
+            <!-- Actions -->
+            <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-md);">
+                <a href="/analyze" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                    <span>🕵️</span> Analyze Another
+                </a>
+                <a href="/" class="btn btn-secondary" style="flex: 1; justify-content: center;">
+                    <span>←</span> Home
+                </a>
+            </div>
         </div>
     </div>
 </body>

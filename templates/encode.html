@@ -4,96 +4,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encode Message</title>
+    <title>Encode Message - Steganography Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+    <div class="background-overlay"></div>
+    <div class="grid-pattern"></div>
 
-    <div class="glass-card">
-        <h1>Encode Message</h1>
-        <p class="subtitle">Hide a secret message inside an image.</p>
+    <div class="main-container">
+        <div class="glass-card">
+            <!-- Back Link -->
+            <a href="/" class="back-link">
+                <span>←</span> Back to Home
+            </a>
 
-        <form action="/encode_message" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label class="file-upload-label">
-                    <span>📁 Click to Upload Image</span>
-                    <input type="file" name="image" accept="image/*" required onchange="previewImage(event)">
-                </label>
-                <img id="preview" src="#" alt="Preview" class="hidden">
+            <!-- Header -->
+            <div class="page-header">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='Lock.jpeg') }}" alt="Lock">
+                </div>
+                <h1 class="page-title">Encode Message</h1>
+                <p class="page-subtitle">Hide your secret message inside an image</p>
             </div>
 
-            <div class="form-group">
-                <textarea id="message-text" name="message" placeholder="Type your secret message here..."
-                    required></textarea>
-            </div>
+            <!-- Form -->
+            <form action="/encode" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Select Image</label>
+                    <div class="file-upload">
+                        <!-- <span class="file-upload-icon">📁</span> -->
+                        <span class="file-upload-text">Click to upload or drag and drop</span>
+                        <span class="file-upload-hint">PNG, JPG up to 10MB</span>
+                        <input type="file" name="image" accept="image/*" required>
+                    </div>
+                </div>
 
-            <div class="form-group">
-                <input type="password" name="password" placeholder="🔑 Password (Optional) - Encrypts your message"
-                    style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); color: white; padding: 1rem; width: 100%; border-radius: 8px;">
-            </div>
+                <div class="form-group">
+                    <label class="form-label" for="message">Secret Message</label>
+                    <textarea 
+                        class="form-textarea" 
+                        id="message" 
+                        name="message" 
+                        placeholder="Enter your secret message..."
+                        required
+                    ></textarea>
+                </div>
 
-            <div class="form-group" style="display: flex; gap: 0.5rem; align-items: center;">
-                <input type="text" id="ai-prompt" placeholder="✨ Ask AI to write it (e.g. 'poem about space')"
-                    style="flex-grow: 1;">
-                <button type="button" onclick="generateAIMessage()" class="btn btn-secondary"
-                    style="padding: 0.8rem;">Generate</button>
-            </div>
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" name="encrypt" id="encrypt">
+                        <span class="checkbox-label">Encrypt with AES-256</span>
+                    </label>
+                </div>
 
-            <button type="submit" class="btn btn-primary w-full">🔒 Hide Message</button>
-        </form>
+                <div class="form-group" id="password-group" style="display: none;">
+                    <label class="form-label" for="password">Encryption Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter a strong password"
+                    >
+                </div>
 
-        <a href="/" class="btn btn-secondary w-full mt-4">← Back to Home</a>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    Encode Message
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>
-        function previewImage(event) {
-            const preview = document.getElementById('preview');
-            const file = event.target.files[0];
-            if (file) {
-                preview.classList.remove('hidden');
-                preview.style.display = 'block';
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        async function generateAIMessage() {
-            const promptInput = document.getElementById('ai-prompt');
-            const messageArea = document.getElementById('message-text');
-            const button = document.querySelector('button[onclick="generateAIMessage()"]');
-
-            const originalText = button.innerText;
-            button.innerText = "Generating...";
-            button.disabled = true;
-
-            try {
-                const response = await fetch('/generate_ai_message', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: promptInput.value })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    messageArea.value = data.message;
-                } else {
-                    alert('Error: ' + (data.error || 'Failed to generate message'));
-                }
-            } catch (error) {
-                alert('Network Error: ' + error.message);
-            } finally {
-                button.innerText = originalText;
-                button.disabled = false;
-            }
-        }
+        document.getElementById('encrypt').addEventListener('change', function() {
+            document.getElementById('password-group').style.display = this.checked ? 'block' : 'none';
+        });
     </script>
 </body>
 

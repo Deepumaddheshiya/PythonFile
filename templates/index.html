@@ -6,46 +6,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Steganography Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Add Futura Font -->
-    <link href="https://fonts.cdnfonts.com/css/futura" rel="stylesheet">
-    <!-- Add Pacifico Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <!-- Background -->
+    <!-- Background Elements -->
     <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+    <div class="background-overlay"></div>
+    <div class="grid-pattern"></div>
 
-    <div class="glass-card">
-        <h1>Steganography Tool</h1>
-        <p class="subtitle">Securely hide secrets within images using advanced steganography.</p>
+    <div class="main-container">
+        <div class="glass-card">
+            <!-- Header -->
+            <div class="page-header">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='encrypt.png') }}" alt="Encrypt">
+                </div>
+                <h1 class="page-title">Steganography Tool</h1>
+                <p class="page-subtitle">Securely hide and extract secrets within images and audio files</p>
+            </div>
 
-        <div class="btn-group">
-            <a href="/encode" class="btn btn-primary">
-                <span>🔒</span> Encode Message
-            </a>
-            <a href="/decode" class="btn btn-secondary">
-                <span>🔓</span> Decode Message
-            </a>
-            <a href="/capacity" class="btn btn-secondary">
-                <span>📊</span> Check Capacity
-            </a>
-            <a href="/analyze" class="btn btn-secondary" style="border-color: var(--accent-primary);">
-                <span>🕵️</span> Scan Image
-            </a>
+            <!-- Navigation -->
+            <nav class="nav-group">
+                <!-- Primary Actions -->
+                <a href="/encode" class="btn btn-primary">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='Lock.jpeg') }}" alt="Lock">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Encode Message</span>
+                        <span class="btn-description">Hide text inside an image</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
 
-            <h3 style="margin: 10px 0; color: var(--text-secondary); font-size: 0.9em;">--- Advanced ---</h3>
+                <a href="/decode" class="btn btn-secondary">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='newunlock.png') }}" alt="Unlock">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Decode Message</span>
+                        <span class="btn-description">Extract hidden text from image</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
 
-            <a href="/encode_image" class="btn btn-secondary">
-                <span>🖼️</span> Hide Image in Image
-            </a>
-            <a href="/decode_image" class="btn btn-secondary">
-                <span>🖼️</span> Extract Image
-            </a>
+                <!-- Tools Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        <span>Tools</span>
+                    </div>
+                </div>
 
-            <a href="/audio" class="btn btn-secondary" style="border-color: #22c55e;">
-                <span>🎵</span> Audio Stego
-            </a>
+                <a href="/capacity" class="btn btn-secondary btn-purple">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='bar-chart.jpg') }}" alt="Capacity">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Check Capacity</span>
+                        <span class="btn-description">Analyze image storage capacity</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+
+                <a href="/analyze" class="btn btn-secondary btn-warning">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='scan.png') }}" alt="Scan">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Scan Image</span>
+                        <span class="btn-description">Detect hidden data with AI</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+
+                <!-- Advanced Section -->
+                <div class="nav-section">
+                    <div class="nav-section-title">
+                        <span>Advanced</span>
+                    </div>
+                </div>
+
+                <a href="/encode_image" class="btn btn-secondary">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='image.jpeg') }}" alt="Image">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Hide Image in Image</span>
+                        <span class="btn-description">Embed an image within another</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+
+                <a href="/decode_image" class="btn btn-secondary">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='extract.jpg') }}" alt="Extract">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Extract Image</span>
+                        <span class="btn-description">Retrieve hidden image</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+
+                <a href="/audio" class="btn btn-secondary btn-success">
+                    <div class="btn-icon">
+                        <img src="{{ url_for('static', filename='music.jpg') }}" alt="Audio">
+                    </div>
+                    <div class="btn-content">
+                        <span class="btn-label">Audio Steganography</span>
+                        <span class="btn-description">Hide data in audio files</span>
+                    </div>
+                    <span class="btn-arrow">→</span>
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p class="footer-text">Secured with AES-256 encryption</p>
+            </div>
         </div>
     </div>
 </body>

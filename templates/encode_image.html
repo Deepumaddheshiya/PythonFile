@@ -4,61 +4,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hide Image in Image</title>
-
-    <!-- CSS -->
+    <title>Hide Image in Image - Steganography Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+    <div class="background-overlay"></div>
+    <div class="grid-pattern"></div>
 
-    <!-- Background Animation -->
-    <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="Background Animation" class="background-gif">
+    <div class="main-container">
+        <div class="glass-card">
+            <!-- Back Link -->
+            <a href="/" class="back-link">
+                <span>←</span> Back to Home
+            </a>
 
-    <div class="glass-card">
-
-        <h1>Hide Image</h1>
-        <p class="subtitle">Embed a secret image inside a cover image.</p>
-
-        <!-- FORM START -->
-        <form action="{{ url_for('encode_image_action') }}" method="POST" enctype="multipart/form-data">
-
-            <!-- Cover Image -->
-            <div class="form-group">
-                <label>1. Select Cover Image (Large)</label>
-
-                <!-- ✅ BOX -->
-                <label class="file-upload-label">
-                    📁 Click to upload cover image
-                    <input type="file" name="cover_image" accept="image/*" required>
-                </label>
+            <!-- Header -->
+            <div class="page-header">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='image.jpeg') }}" alt="Image">
+                </div>
+                <h1 class="page-title">Hide Image in Image</h1>
+                <p class="page-subtitle">Embed a secret image inside a cover image</p>
             </div>
 
-            <!-- Secret Image -->
-            <div class="form-group">
-                <label>2. Select Secret Image (Small)</label>
+            <!-- Form -->
+            <form action="/encode_image" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Select Cover Image</label>
+                    <div class="file-upload">
+                        <span class="file-upload-icon">📁</span>
+                        <span class="file-upload-text">Click to upload or drag and drop</span>
+                        <span class="file-upload-hint">PNG, JPG up to 10MB</span>
+                        <input type="file" name="cover_image" accept="image/*" required>
+                    </div>
+                </div>
 
-                <!-- ✅ BOX -->
-                <label class="file-upload-label">
-                    📁 Click to upload secret image
-                    <input type="file" name="secret_image" accept="image/*" required>
-                </label>
+                <div class="form-group">
+                    <label class="form-label">Select Secret Image</label>
+                    <div class="file-upload">
+                        <span class="file-upload-icon">🖼️</span>
+                        <span class="file-upload-text">Click to upload or drag and drop</span>
+                        <span class="file-upload-hint">PNG, JPG to hide inside cover</span>
+                        <input type="file" name="secret_image" accept="image/*" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                    <span>🔒</span> Hide Image
+                </button>
+            </form>
+
+            <!-- Tips -->
+            <div class="alert alert-warning" style="margin-top: var(--spacing-md);">
+                <span>For best results, the cover image should be significantly larger than the secret image.</span>
             </div>
-
-            <!-- Submit -->
-            <button type="submit" class="btn btn-primary w-full">
-                🖼️ Hide Image
-            </button>
-
-        </form>
-        <!-- FORM END -->
-
-        <a href="{{ url_for('index') }}" class="btn btn-secondary w-full mt-4">
-            ← Back to Home
-        </a>
-
+        </div>
     </div>
-
 </body>
 
 </html>

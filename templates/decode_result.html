@@ -4,24 +4,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decode Result</title>
+    <title>Decode Result - Steganography Tool</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <img src="{{ url_for('static', filename='animation.gif.gif') }}" alt="" class="background-gif">
+    <div class="background-overlay"></div>
+    <div class="grid-pattern"></div>
 
-    <div class="glass-card">
-        <h1>Decode Result</h1>
-        <p class="subtitle">The secret message hidden in your image:</p>
+    <div class="main-container">
+        <div class="glass-card">
+            <!-- Back Link -->
+            <a href="/decode" class="back-link">
+                <span>←</span> Back to Decode
+            </a>
 
-        <div class="result-box">
-            {{ message }}
-        </div>
+            <!-- Header -->
+            <div class="page-header">
+                <div class="logo">✅</div>
+                <h1 class="page-title">Message Decoded</h1>
+                <p class="page-subtitle">Successfully extracted the hidden message</p>
+            </div>
 
-        <div class="btn-group">
-            <a href="/decode" class="btn btn-primary w-full">🔓 Decode Another</a>
-            <a href="/" class="btn btn-secondary w-full">← Back to Home</a>
+            <!-- Result -->
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-icon">🔓</div>
+                    <span class="result-title">Secret Message</span>
+                </div>
+                <div class="result-content">{{ message }}</div>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; gap: var(--spacing-sm); margin-top: var(--spacing-md);">
+                <a href="/decode" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                    <span>🔓</span> Decode Another
+                </a>
+                <a href="/" class="btn btn-secondary" style="flex: 1; justify-content: center;">
+                    <span>←</span> Home
+                </a>
+            </div>
+
+            <!-- Tip -->
+            <div class="alert alert-success" style="margin-top: var(--spacing-md);">
+                <span>✓</span>
+                <span>Message successfully extracted from the image.</span>
+            </div>
         </div>
     </div>
 </body>
