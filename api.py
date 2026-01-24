@@ -1,13 +1,19 @@
-from flask import Flask, render_template, request, send_file, jsonify
-import os
-from dotenv import load_dotenv
+"""
+Steganography API Service
+Flask REST API for secure message encoding/decoding
+Runs on port 5001 (separate from Node.js on 5010)
+"""
 
-# ===== Optional AI (Gemini) =====
-try:
-    import google.generativeai as genai
-    GEMINI_AVAILABLE = True
-except ImportError:
-    GEMINI_AVAILABLE = False
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+import os
+import uuid
+import base64
+import io
+import threading
+import time
+from dotenv import load_dotenv
 
 from utils.stego import (
     allowed_file,
@@ -17,40 +23,81 @@ from utils.stego import (
     encode_image_in_image,
     decode_image_from_image
 )
-
-from utils.analysis import analyze_image
 from utils.audio import encode_audio, decode_audio
+from utils.analysis import analyze_image
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for Node.js communication
+
+# Configuration
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp'}
+ALLOWED_AUDIO_EXTENSIONS = {'wav'}
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'bmp'}
+# Auto-cleanup settings (delete files older than 5 minutes)
+CLEANUP_INTERVAL = 300  # 5 minutes
 
-# ===== Gemini Configuration (Safe) =====
-if GEMINI_AVAILABLE:
-    try:
-        genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-    except Exception:
-        GEMINI_AVAILABLE = False
+def cleanup_old_files():
+    """Background task to delete old uploaded files"""
+    while True:
+        time.sleep(CLEANUP_INTERVAL)
+        try:
+            folder = app.config['UPLOAD_FOLDER']
+            if os.path.exists(folder):
+                now = time.time()
+                for filename in os.listdir(folder):
+                    filepath = os.path.join(folder, filename)
+                    if os.path.isfile(filepath):
+                        if now - os.path.getmtime(filepath) > CLEANUP_INTERVAL:
+                            os.remove(filepath)
+                            print(f"🗑️ Cleaned up: {filename}")
+        except Exception as e:
+            print(f"Cleanup error: {e}")
 
-# ================= ROUTES =================
+# Start cleanup thread
+cleanup_thread = threading.Thread(target=cleanup_old_files, daemon=True)
+cleanup_thread.start()
 
-@app.route('/')
+def generate_unique_filename(extension):
+    """Generate a unique filename to prevent collisions"""
+    return f"{uuid.uuid4().hex}.{extension}"
+
+def file_to_base64(filepath):
+    """Convert file to base64 string"""
+    with open(filepath, 'rb') as f:
+        return base64.b64encode(f.read()).decode('utf-8')
+
+def cleanup_files(*filepaths):
+    """Delete temporary files"""
+    for filepath in filepaths:
+        try:
+            if filepath and os.path.exists(filepath):
+                os.remove(filepath)
+        except Exception as e:
+            print(f"Failed to delete {filepath}: {e}")
+
+# ==================== ROOT & HEALTH CHECK ====================
+
+@app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
-
-# ========== API ENDPOINTS (FOR NODE.JS BACKEND) ==========
+    return jsonify({"status": "running", "service": "Secure-App Stego Service"})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "ok", "service": "stego-service"}), 200
+    return jsonify({
+        "status": "healthy",
+        "service": "stego-service",
+        "version": "1.0.0"
+    })
+
+# ==================== TEXT → IMAGE STEGANOGRAPHY ====================
 
 @app.route('/api/encode/text-image', methods=['POST'])
-def api_encode_text_image():
+def encode_text_in_image():
     try:
         if 'image' not in request.files or 'message' not in request.form:
              return jsonify({"success": False, "error": "Missing image or message"}), 400
@@ -59,26 +106,17 @@ def api_encode_text_image():
         message = request.form['message']
         password = request.form.get('password')
 
-        if not allowed_file(image.filename, ALLOWED_EXTENSIONS):
-            return jsonify({"success": False, "error": "Invalid file type"}), 400
-
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_in_{image.filename}")
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_out_{image.filename}")
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
 
         image.save(input_path)
         encode_message(input_path, message, output_path, password)
 
         # Return base64 encoded image
-        with open(output_path, "rb") as img_file:
-            encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+        encoded_string = file_to_base64(output_path)
         
-        # Cleanup
-        try:
-            os.remove(input_path)
-            os.remove(output_path)
-        except:
-            pass
+        cleanup_files(input_path, output_path)
             
         return jsonify({
             "success": True,
@@ -86,10 +124,12 @@ def api_encode_text_image():
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/decode/text-image', methods=['POST'])
-def api_decode_text_image():
+def decode_text_from_image():
     try:
         if 'image' not in request.files:
             return jsonify({"success": False, "error": "Missing image"}), 400
@@ -98,21 +138,12 @@ def api_decode_text_image():
         password = request.form.get('password')
 
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_dec_{image.filename}")
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
         image.save(input_path)
 
         message = decode_message(input_path, password)
         
-        # Cleanup
-        try:
-            os.remove(input_path)
-        except:
-            pass
-
-        if "Error" in message or "Incorrect" in message or "Hidden message not found" in message:
-             # Just return it as textResult so frontend can decide how to show it, or mark success=False?
-             # existing frontend logic checks for message content.
-             pass
+        cleanup_files(input_path)
 
         return jsonify({
             "success": True,
@@ -121,8 +152,11 @@ def api_decode_text_image():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
+# ==================== IMAGE → IMAGE STEGANOGRAPHY ====================
+
 @app.route('/api/encode/image-image', methods=['POST'])
-def api_encode_image_image():
+def encode_image_in_image_api():
     try:
         if 'cover_image' not in request.files or 'secret_image' not in request.files:
             return jsonify({"success": False, "error": "Missing images"}), 400
@@ -131,40 +165,18 @@ def api_encode_image_image():
         secret = request.files['secret_image']
         
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        cover_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_cov_{cover.filename}")
-        secret_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_sec_{secret.filename}")
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_out_img_{cover.filename}")
+        cover_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
+        secret_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
         
         cover.save(cover_path)
         secret.save(secret_path)
         
         encode_image_in_image(cover_path, secret_path, output_path)
         
-        with open(output_path, "rb") as img_file:
-             encoded_bytes = img_file.read()
-             
-        # Cleanup
-        try:
-            os.remove(cover_path)
-            os.remove(secret_path)
-            os.remove(output_path)
-        except:
-            pass
-            
-        # Return raw bytes or base64? 
-        # Node stegoController expects arraybuffer for this specific case (based on previous code analysis),
-        # BUT let's standardize on base64 JSON for APIs usually?
-        # Actually Node.js code does `responseType: 'arraybuffer'` for `image-image`.
-        # So we should return the FILE, not JSON.
-        # WAIT! Node.js `stegoController.js` lines 111-115 checks responseType: 'arraybuffer'.
-        # So I should return send_file or raw bytes.
+        encoded_string = file_to_base64(output_path)
         
-        # However, `text-image` in Node expects JSON with `encodedImage` (base64).
-        # To make it consistent, I SHOULD change Node to expect uniform JSON, OR support what Node expects.
-        # My plan said: "Return JSON responses".
-        # So I will return JSON here and update Node to expect JSON. This is cleaner.
-        
-        encoded_string = base64.b64encode(encoded_bytes).decode('utf-8')
+        cleanup_files(cover_path, secret_path, output_path)
         
         return jsonify({
             "success": True,
@@ -175,7 +187,7 @@ def api_encode_image_image():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/decode/image-image', methods=['POST'])
-def api_decode_image_image():
+def decode_image_from_image_api():
     try:
         if 'image' not in request.files:
              return jsonify({"success": False, "error": "Missing image"}), 400
@@ -183,22 +195,16 @@ def api_decode_image_image():
         image = request.files['image']
         
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_dec_img_{image.filename}")
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_rec_{image.filename}")
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
         
         image.save(input_path)
         
         decode_image_from_image(input_path, output_path)
         
-        with open(output_path, "rb") as img_file:
-             encoded_string = base64.b64encode(img_file.read()).decode('utf-8')
+        encoded_string = file_to_base64(output_path)
              
-        # Cleanup
-        try:
-             os.remove(input_path)
-             os.remove(output_path)
-        except:
-             pass
+        cleanup_files(input_path, output_path)
 
         return jsonify({
             "success": True,
@@ -208,8 +214,11 @@ def api_decode_image_image():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
+# ==================== AUDIO STEGANOGRAPHY ====================
+
 @app.route('/api/encode/audio', methods=['POST'])
-def api_encode_audio():
+def encode_audio_api():
     try:
         if 'audio' not in request.files or 'message' not in request.form:
              return jsonify({"success": False, "error": "Missing audio or message"}), 400
@@ -222,25 +231,15 @@ def api_encode_audio():
              return jsonify({"success": False, "error": "Only WAV supported"}), 400
              
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_in_{audio.filename}")
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_out_{audio.filename}")
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('wav'))
+        output_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('wav'))
         
         audio.save(input_path)
         encode_audio(input_path, message, output_path, password)
         
-        with open(output_path, "rb") as audit_file:
-             encoded_bytes = audit_file.read()
+        encoded_string = file_to_base64(output_path)
 
-        # Cleanup
-        try:
-             os.remove(input_path)
-             os.remove(output_path)
-        except:
-             pass
-             
-        # Return JSON with base64
-        # Need to return uniform JSON.
-        encoded_string = base64.b64encode(encoded_bytes).decode('utf-8')
+        cleanup_files(input_path, output_path)
         
         return jsonify({
             "success": True,
@@ -251,7 +250,7 @@ def api_encode_audio():
         return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/decode/audio', methods=['POST'])
-def api_decode_audio():
+def decode_audio_api():
     try:
         if 'audio' not in request.files:
              return jsonify({"success": False, "error": "Missing audio"}), 400
@@ -260,15 +259,12 @@ def api_decode_audio():
         password = request.form.get('password')
         
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_dec_{audio.filename}")
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('wav'))
         audio.save(input_path)
         
         message = decode_audio(input_path, password)
         
-        try:
-             os.remove(input_path)
-        except:
-             pass
+        cleanup_files(input_path)
              
         return jsonify({
             "success": True,
@@ -278,23 +274,23 @@ def api_decode_audio():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+
+# ==================== CAPACITY CHECK ====================
+
 @app.route('/api/capacity', methods=['POST'])
-def api_capacity():
+def check_capacity_api():
     try:
         if 'image' not in request.files:
             return jsonify({"success": False, "error": "Missing image"}), 400
             
         image = request.files['image']
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-        input_path = os.path.join(app.config['UPLOAD_FOLDER'], f"api_cap_{image.filename}")
+        input_path = os.path.join(app.config['UPLOAD_FOLDER'], generate_unique_filename('png'))
         image.save(input_path)
         
         capacity = calculate_capacity(input_path)
         
-        try:
-             os.remove(input_path)
-        except:
-             pass
+        cleanup_files(input_path)
              
         return jsonify({
             "success": True,
@@ -304,8 +300,7 @@ def api_capacity():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-# ================= MAIN =================
-
 if __name__ == '__main__':
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    app.run(debug=True)
+    print("🔐 Steganography API Service Starting...")
+    app.run(host='127.0.0.1', port=5001, debug=True)

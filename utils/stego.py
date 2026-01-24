@@ -18,7 +18,7 @@ def allowed_file(filename, allowed_extensions):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 def encode_message(image_path, message, output_path, password=None):
-    img = Image.open(image_path)
+    img = Image.open(image_path).convert("RGB")  # Always convert to RGB to avoid channel issues
     pixels = img.load()
     width, height = img.size
 
@@ -62,7 +62,7 @@ def encode_message(image_path, message, output_path, password=None):
     img.save(output_path)
 
 def decode_message(image_path, password=None):
-    img = Image.open(image_path)
+    img = Image.open(image_path).convert("RGB")  # Always convert to RGB for consistent channel access
     pixels = img.load()
     width, height = img.size
 
@@ -106,7 +106,7 @@ def decode_message(image_path, password=None):
             return "Error decoding message (format mismatch)."
 
 def calculate_capacity(image_path):
-    img = Image.open(image_path)
+    img = Image.open(image_path).convert("RGB")  # Convert to RGB to get accurate capacity
     width, height = img.size
     max_bits = width * height * 3
     max_bytes = max_bits // 8
