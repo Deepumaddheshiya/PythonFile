@@ -86,7 +86,8 @@
                         <span class="panel-title">Hide Message</span>
                     </div>
                     
-                    <form action="/encode_audio" method="post" enctype="multipart/form-data">
+                    <form action="/audio" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="encode">
                         <div class="form-group">
                             <label class="form-label">Select WAV File</label>
                             <div class="file-upload" style="padding: var(--spacing-md);">
@@ -120,7 +121,8 @@
                         <span class="panel-title">Extract Message</span>
                     </div>
                     
-                    <form action="/decode_audio" method="post" enctype="multipart/form-data">
+                    <form action="/audio" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="decode">
                         <div class="form-group">
                             <label class="form-label">Select Encoded WAV File</label>
                             <div class="file-upload" style="padding: var(--spacing-md);">
